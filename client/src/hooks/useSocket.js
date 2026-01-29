@@ -8,7 +8,7 @@ const useSocket = () => {
 
   useEffect(() => {
     const socketIo = io(SOCKET_URL, {
-        transports: ['websocket'],
+      transports: ['websocket'],
     });
 
     setSocket(socketIo);

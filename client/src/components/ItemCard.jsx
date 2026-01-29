@@ -17,8 +17,10 @@ const ItemCard = ({ item, socketId, onBid }) => {
   }, [item.currentBid]);
   
   const handleBid = () => {
-      onBid(item._id);
-      setHasBidded(true);
+      if (onBid) {
+        onBid(item._id);
+        setHasBidded(true);
+      }
   };
 
   return (

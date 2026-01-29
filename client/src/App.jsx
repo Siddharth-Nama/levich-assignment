@@ -26,7 +26,6 @@ function App() {
             setItems(data);
         } else {
             setItems(prev => {
-                // Filter out duplicates just in case
                 const existingIds = new Set(prev.map(i => i._id));
                 const newItems = data.filter(i => !existingIds.has(i._id));
                 return [...prev, ...newItems];
@@ -43,18 +42,20 @@ function App() {
   }, [page, setItems]);
 
   useEffect(() => {
-    if (!socket) return;
+  if (!socket || typeof socket.on !== 'function') return;
 
-    socket.on('UPDATE_BID', (updatedItem) => {
-      updateItem(updatedItem);
-    });
+  const handler = (updatedItem) => {
+    updateItem(updatedItem);
+  };
 
-    return () => {
-      socket.off('UPDATE_BID');
-    };
-  }, [socket, updateItem]);
+  socket.on('UPDATE_BID', handler);
 
-  // Infinite Scroll Observer
+  return () => {
+    socket.off('UPDATE_BID', handler);
+  };
+}, [socket, updateItem]);
+
+
   const observer = React.useRef();
   const lastElementRef = React.useCallback(node => {
     if (isLoading) return;
