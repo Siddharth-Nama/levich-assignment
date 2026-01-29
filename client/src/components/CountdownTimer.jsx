@@ -14,7 +14,7 @@ const CountdownTimer = ({ endTime, onEnd }) => {
       };
     } else {
         if (onEnd) onEnd();
-        return null; // Time is up
+        return null;
     }
 
     return timeLeft;
@@ -30,7 +30,7 @@ const CountdownTimer = ({ endTime, onEnd }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [endTime]); // Re-run if endTime changes
+  }, [endTime]);
 
   if (!timeLeft) {
     return <span className="text-red-600 font-bold">Ended</span>;
