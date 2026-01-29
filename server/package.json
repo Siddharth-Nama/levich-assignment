@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed": "node seedItems.js"
   },
   "keywords": [],
   "author": "",
