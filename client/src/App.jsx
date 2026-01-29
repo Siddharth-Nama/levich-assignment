@@ -10,7 +10,8 @@ function App() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/items`);
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/items`);
         const data = await response.json();
         setItems(data);
       } catch (error) {
