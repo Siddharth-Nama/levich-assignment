@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuction } from './context/AuctionContext';
 import ItemCard from './components/ItemCard';
 import useSocket from './hooks/useSocket';
@@ -6,21 +6,41 @@ import useSocket from './hooks/useSocket';
 function App() {
   const { items, setItems, updateItem } = useAuction();
   const socket = useSocket();
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchItems = async () => {
       try {
+        setIsLoading(true);
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/items`);
+        const response = await fetch(`${apiUrl}/items?page=${page}&limit=12`);
         const data = await response.json();
-        setItems(data);
+        
+        if (data.length < 12) {
+            setHasMore(false);
+        }
+
+        if (page === 1) {
+            setItems(data);
+        } else {
+            setItems(prev => {
+                // Filter out duplicates just in case
+                const existingIds = new Set(prev.map(i => i._id));
+                const newItems = data.filter(i => !existingIds.has(i._id));
+                return [...prev, ...newItems];
+            });
+        }
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchItems();
-  }, [setItems]);
+  }, [page, setItems]);
 
   useEffect(() => {
     if (!socket) return;
@@ -67,11 +87,35 @@ function App() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {items.map((item) => (
             <ItemCard key={item._id} item={item} />
           ))}
         </div>
+
+        {hasMore && (
+           <div className="flex justify-center">
+               <button 
+                  onClick={() => setPage(prev => prev + 1)}
+                  disabled={isLoading}
+                  className="px-8 py-3 bg-neutral-900 border border-red-600/30 rounded-full text-white font-bold tracking-widest uppercase hover:bg-red-600 hover:border-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+               >
+                  {isLoading ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      Load More Items
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </>
+                  )}
+               </button>
+           </div>
+        )}
       </main>
 
       <footer className="border-t border-red-900/30 bg-neutral-950 py-8 mt-12">

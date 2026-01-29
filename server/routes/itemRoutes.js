@@ -4,7 +4,15 @@ const Item = require('../models/Item');
 
 router.get('/', async (req, res) => {
   try {
-    const items = await Item.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+
+    const items = await Item.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: error.message });
