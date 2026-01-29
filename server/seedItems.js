@@ -5,28 +5,35 @@ const connectDB = require('./config/db');
 
 dotenv.config();
 
-const items = [
-  {
-    title: 'Vintage Camera',
-    startingPrice: 100,
-    endTime: new Date(Date.now() + 1000 * 60 * 60), // Ends in 1 hour
-  },
-  {
-    title: 'Rare Coin',
-    startingPrice: 50,
-    endTime: new Date(Date.now() + 1000 * 60 * 30), // Ends in 30 mins
-  },
-  {
-    title: 'Signed Poster',
-    startingPrice: 200,
-    endTime: new Date(Date.now() + 1000 * 60 * 5), // Ends in 5 mins (good for testing)
-  },
-  {
-    title: 'Gaming Console',
-    startingPrice: 300,
-    endTime: new Date(Date.now() + 1000 * 60 * 15), // Ends in 15 mins
+const MAX_ITEMS = 100;
+
+const adjectives = ['Vintage', 'Rare', 'Antique', 'Collectible', 'Signed', 'Limited Edition', 'Retro', 'Modern', 'Futuristic', 'Legendary', 'Golden', 'Silver', 'Diamond', 'Broken', 'Haunted'];
+const nouns = ['Camera', 'Watch', 'Coin', 'Poster', 'Guitar', 'Sneakers', 'Console', 'Laptop', 'Painting', 'Sculpture', 'Bike', 'Car', 'Drone', 'Smartphone', 'Chair', 'Table', 'Lamp', 'Keyboard', 'Monitor', 'Headphones'];
+
+const generateItems = () => {
+  const items = [];
+  for (let i = 0; i < MAX_ITEMS; i++) {
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+    
+    // Random price between 10 and 1000
+    const startingPrice = Math.floor(Math.random() * 990) + 10;
+    
+    // Random end time between 2 minutes and 24 hours from now
+    const duration = Math.floor(Math.random() * (24 * 60 - 2) + 2) * 60 * 1000;
+    const endTime = new Date(Date.now() + duration);
+
+    items.push({
+      title: `${adj} ${noun} #${i + 1}`,
+      startingPrice: startingPrice,
+      currentBid: startingPrice, // Ensure currentBid matches startingPrice initially
+      endTime: endTime
+    });
   }
-];
+  return items;
+};
+
+const items = generateItems();
 
 const seedData = async () => {
   try {
@@ -36,7 +43,7 @@ const seedData = async () => {
     console.log('Items cleared');
 
     await Item.insertMany(items);
-    console.log('Items seeded');
+    console.log(`${items.length} items seeded successfully`);
 
     process.exit();
   } catch (error) {
