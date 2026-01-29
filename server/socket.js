@@ -2,15 +2,11 @@ const Item = require('./models/Item');
 
 const socketHandler = (io) => {
   io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.id}`);
-
+    
     socket.on('BID_PLACED', async (data) => {
       const { itemId, amount } = data;
 
       try {
-        // Race Condition Strategy: 
-        // Use atomic findOneAndUpdate with condition that currentBid < amount.
-        // This ensures if two concurrent requests come, only one matches the condition.
         const updatedItem = await Item.findOneAndUpdate(
           { 
             _id: itemId, 
@@ -29,7 +25,6 @@ const socketHandler = (io) => {
         if (updatedItem) {
           io.emit('UPDATE_BID', updatedItem);
         } else {
-          // Failure analysis
           const item = await Item.findById(itemId);
           if (!item) {
             socket.emit('BID_ERROR', { message: 'Item not found' });
@@ -46,7 +41,6 @@ const socketHandler = (io) => {
     });
 
     socket.on('disconnect', () => {
-      console.log(`User disconnected: ${socket.id}`);
     });
   });
 };

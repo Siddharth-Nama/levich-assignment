@@ -6,15 +6,11 @@ const ItemCard = ({ item, socketId, onBid }) => {
   const [flash, setFlash] = useState(false);
   const [hasBidded, setHasBidded] = useState(false);
 
-  // Determine status
   const isWinning = socketId && item.highestBidderSocketId === socketId;
   const isOutbid = hasBidded && !isWinning && item.highestBidderSocketId;
   const isEnded = new Date(item.endTime) < new Date();
 
-  // Flash effect on price update
   useEffect(() => {
-    // Only flash if it's not the initial load (simple check: if price > startingPrice or just always flash on update)
-    // React's strict mode might double flash in dev, acceptable.
     setFlash(true);
     const timer = setTimeout(() => setFlash(false), 500);
     return () => clearTimeout(timer);
@@ -26,40 +22,47 @@ const ItemCard = ({ item, socketId, onBid }) => {
   };
 
   return (
-    <div className={`relative p-6 rounded-2xl backdrop-blur-md border transition-all duration-300 transform hover:-translate-y-1 ${
-        isWinning ? 'bg-green-50/90 border-green-400 shadow-[0_0_20px_rgba(74,222,128,0.4)]' :
-        isOutbid ? 'bg-red-50/90 border-red-400 shadow-[0_0_20px_rgba(248,113,113,0.4)]' :
-        'bg-white/80 border-gray-200 hover:shadow-xl shadow-md'
+    <div className={`relative p-8 rounded-xl backdrop-blur-md border transition-all duration-300 group ${
+        isWinning ? 'bg-black/80 border-green-500 shadow-[0_0_30px_rgba(34,197,94,0.3)]' :
+        isOutbid ? 'bg-black/80 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.3)]' :
+        'bg-neutral-900/50 border-neutral-800 hover:border-red-600/50 hover:shadow-2xl hover:shadow-red-900/20'
     }`}>
-       {/* Status Badge */}
        {isWinning && !isEnded && (
-           <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-bounce shadow-sm">
-               WINNING
+           <div className="absolute top-4 right-4 flex items-center gap-2">
+               <span className="relative flex h-3 w-3">
+                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                 <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+               </span>
+               <span className="text-green-500 text-xs font-bold tracking-widest uppercase">Winning</span>
            </div>
        )}
        {isOutbid && !isEnded && (
-           <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse shadow-sm">
-               OUTBID
+           <div className="absolute top-4 right-4 flex items-center gap-2">
+                <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+               <span className="text-red-500 text-xs font-bold tracking-widest uppercase">Outbid</span>
            </div>
        )}
        {isEnded && (
-           <div className="absolute top-3 right-3 bg-gray-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+           <div className="absolute top-4 right-4 bg-neutral-800 text-neutral-400 text-xs font-bold px-3 py-1 rounded-full border border-neutral-700">
                ENDED
            </div>
        )}
 
-       <h3 className="text-xl font-bold mb-2 text-gray-800 tracking-tight">{item.title}</h3>
+       <h3 className="text-2xl font-black mb-4 text-white tracking-tight leading-tight group-hover:text-red-500 transition-colors uppercase">{item.title}</h3>
        
-       <div className={`text-4xl font-extrabold mb-4 transition-all duration-300 flex items-center ${flash ? 'text-green-600 scale-105' : 'text-gray-900'}`}>
-         ${item.currentBid}
+       <div className={`text-4xl font-black mb-6 transition-all duration-300 flex items-center tracking-tighter ${flash ? 'text-green-500 scale-105' : 'text-neutral-200'}`}>
+         ${item.currentBid.toLocaleString()}
        </div>
        
-       <div className="mb-6 flex items-center justify-between bg-gray-100/50 p-2 rounded-lg">
-         <span className="text-sm font-medium text-gray-500">Ends in:</span>
+       <div className="mb-8 flex items-center justify-between bg-black/40 p-4 rounded-lg border border-neutral-800">
+         <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Time Left</span>
          <CountdownTimer endTime={item.endTime} />
        </div>
        
-       <div className="w-full flex justify-center">
+       <div className="w-full">
         <BidButton 
             amount={10} 
             onClick={handleBid}

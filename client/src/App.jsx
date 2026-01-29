@@ -1,30 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import useSocket from './hooks/useSocket';
+import React, { useEffect } from 'react';
 import { useAuction } from './context/AuctionContext';
 import ItemCard from './components/ItemCard';
+import useSocket from './hooks/useSocket';
 
 function App() {
-  const { items, setItems, updateItem, loading, setLoading } = useAuction();
+  const { items, setItems, updateItem } = useAuction();
   const socket = useSocket();
-  const [error, setError] = useState(null);
 
-  // Fetch initial items
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/items`);
-        const data = await res.json();
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/items`);
+        const data = await response.json();
         setItems(data);
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setLoading(false);
+      } catch (error) {
+        console.error(error);
       }
     };
+
     fetchItems();
   }, [setItems]);
 
-  // Socket listeners
   useEffect(() => {
     if (!socket) return;
 
@@ -32,76 +28,58 @@ function App() {
       updateItem(updatedItem);
     });
 
-    socket.on('BID_ERROR', (err) => {
-      setError(err.message);
-      setTimeout(() => setError(null), 3000);
-    });
-
     return () => {
       socket.off('UPDATE_BID');
-      socket.off('BID_ERROR');
     };
   }, [socket, updateItem]);
 
-  const placeBid = (itemId) => {
-    if (!socket) {
-        setError("Not connected to server");
-        return;
-    }
-    const item = items.find(i => i._id === itemId);
-    if (item) {
-        const newAmount = item.currentBid + 10;
-        socket.emit('BID_PLACED', { itemId, amount: newAmount });
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-      {/* Error Toast */}
-      {error && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-600/90 text-white px-6 py-3 rounded-full shadow-2xl z-50 animate-bounce font-bold backdrop-blur-sm">
-          ⚠️ {error}
-        </div>
-      )}
-
-      {/* Header */}
-      <header className="py-12 text-center bg-white shadow-sm mb-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 opacity-50"></div>
-        <div className="relative z-10">
-            <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 tracking-tight mb-2">
-                Live Auction
-            </h1>
-            <p className="text-gray-500 text-lg">Real-time Bidding Platform</p>
-            <div className="mt-4 flex justify-center items-center space-x-2">
-                <span className={`h-3 w-3 rounded-full ${socket ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
-                <span className="text-xs text-gray-400 font-mono tracking-wide">
-                    {socket ? 'LIVE CONNECTED' : 'DISCONNECTED'}
-                </span>
+    <div className="min-h-screen bg-black text-white font-sans selection:bg-red-600 selection:text-white">
+      <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-red-900/50 shadow-lg shadow-red-900/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-black rounded-lg flex items-center justify-center border border-red-500 shadow-md shadow-red-600/30">
+                <span className="text-xl font-bold font-mono">L</span>
+              </div>
+              <h1 className="text-3xl font-bold tracking-tighter bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
+                LIV<span className="text-red-600">BID</span>
+              </h1>
             </div>
-        </div>
-      </header>
-
-      {/* Grid */}
-      <main className="container mx-auto px-4 pb-12">
-        {loading ? (
-             <div className="flex justify-center items-center mt-20 space-x-3 text-gray-400 animate-pulse">
-                <div className="h-4 w-4 bg-gray-300 rounded-full"></div>
-                <div className="h-4 w-4 bg-gray-300 rounded-full animation-delay-200"></div>
-                <div className="h-4 w-4 bg-gray-300 rounded-full animation-delay-400"></div>
-             </div>
-        ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {items.map((item) => (
-                <ItemCard 
-                    key={item._id} 
-                    item={item} 
-                    socketId={socket?.id}
-                    onBid={placeBid}
-                />
-            ))}
+            <div className="hidden md:block">
+              <span className="text-neutral-400 text-sm tracking-widest uppercase font-semibold">
+                Designed by <span className="text-white border-b-2 border-red-600 pb-1">Siddharth Nama</span>
+              </span>
             </div>
-        )}
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12">
+        <header className="mb-12 text-center relative">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-red-600/20 rounded-full blur-3xl -z-10"></div>
+          <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
+            PREMIUM <span className="text-red-600 italic">AUCTIONS</span>
+          </h2>
+          <p className="text-neutral-400 max-w-2xl mx-auto text-lg">
+            Experience real-time bidding with zero latency. Secure your luxury items now.
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {items.map((item) => (
+            <ItemCard key={item._id} item={item} />
+          ))}
+        </div>
       </main>
+
+      <footer className="border-t border-red-900/30 bg-neutral-950 py-8 mt-12">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+            <p className="text-neutral-500 text-sm">
+                &copy; 2026 Developed by <span className="text-red-500 font-bold">Siddharth Nama</span>. All rights reserved.
+            </p>
+        </div>
+      </footer>
     </div>
   );
 }

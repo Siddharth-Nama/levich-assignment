@@ -26,8 +26,6 @@ const ItemSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-// Index for efficient querying if needed, though standard ID query is fast.
-// We might want an index on endTime to find active auctions efficiently if we were scaling.
 ItemSchema.index({ endTime: 1 });
 
 module.exports = mongoose.model('Item', ItemSchema);

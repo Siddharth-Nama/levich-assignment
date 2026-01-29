@@ -16,17 +16,15 @@ const generateItems = () => {
     const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
     const noun = nouns[Math.floor(Math.random() * nouns.length)];
     
-    // Random price between 10 and 1000
     const startingPrice = Math.floor(Math.random() * 990) + 10;
     
-    // Random end time between 2 minutes and 24 hours from now
     const duration = Math.floor(Math.random() * (24 * 60 - 2) + 2) * 60 * 1000;
     const endTime = new Date(Date.now() + duration);
 
     items.push({
       title: `${adj} ${noun} #${i + 1}`,
       startingPrice: startingPrice,
-      currentBid: startingPrice, // Ensure currentBid matches startingPrice initially
+      currentBid: startingPrice,
       endTime: endTime
     });
   }

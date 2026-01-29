@@ -2,8 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Item = require('../models/Item');
 
-// @desc    Get all items
-// @route   GET /items
 router.get('/', async (req, res) => {
   try {
     const items = await Item.find();
@@ -13,8 +11,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// @desc    Get single item
-// @route   GET /items/:id
 router.get('/:id', async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);

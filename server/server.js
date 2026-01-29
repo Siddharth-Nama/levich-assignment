@@ -11,20 +11,17 @@ dotenv.config();
 connectDB();
 
 const app = express();
-// Create HTTP server explicitly to attach Socket.io
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: '*', // Allow all origins for dev/assignment
+    origin: '*',
     methods: ['GET', 'POST']
   }
 });
 
-// Initialize socket handlers
 socketHandler(io);
 
-// Make io available in routes if needed (middleware style)
 app.use((req, res, next) => {
     req.io = io;
     next();
