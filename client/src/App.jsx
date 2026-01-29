@@ -67,6 +67,15 @@ function App() {
     if (node) observer.current.observe(node);
   }, [isLoading, hasMore]);
 
+  const handleBid = (itemId) => {
+    if (socket) {
+      const item = items.find(i => i._id === itemId);
+      if (item) {
+        socket.emit('BID_PLACED', { itemId, amount: item.currentBid + 10 });
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-red-600 selection:text-white">
       <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-red-900/50 shadow-lg shadow-red-900/20">
@@ -103,9 +112,24 @@ function App() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {items.map((item, index) => {
              if (items.length === index + 1) {
-                return <div ref={lastElementRef} key={item._id}><ItemCard item={item} /></div>;
+                return (
+                    <div ref={lastElementRef} key={item._id}>
+                        <ItemCard 
+                            item={item} 
+                            socketId={socket?.id} 
+                            onBid={handleBid} 
+                        />
+                    </div>
+                );
              } else {
-                return <ItemCard key={item._id} item={item} />;
+                return (
+                    <ItemCard 
+                        key={item._id} 
+                        item={item} 
+                        socketId={socket?.id} 
+                        onBid={handleBid} 
+                    />
+                );
              }
           })}
         </div>
