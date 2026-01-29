@@ -54,6 +54,19 @@ function App() {
     };
   }, [socket, updateItem]);
 
+  // Infinite Scroll Observer
+  const observer = React.useRef();
+  const lastElementRef = React.useCallback(node => {
+    if (isLoading) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage(prevPage => prevPage + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [isLoading, hasMore]);
+
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-red-600 selection:text-white">
       <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-red-900/50 shadow-lg shadow-red-900/20">
@@ -88,33 +101,25 @@ function App() {
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {items.map((item) => (
-            <ItemCard key={item._id} item={item} />
-          ))}
+          {items.map((item, index) => {
+             if (items.length === index + 1) {
+                return <div ref={lastElementRef} key={item._id}><ItemCard item={item} /></div>;
+             } else {
+                return <ItemCard key={item._id} item={item} />;
+             }
+          })}
         </div>
 
-        {hasMore && (
-           <div className="flex justify-center">
-               <button 
-                  onClick={() => setPage(prev => prev + 1)}
-                  disabled={isLoading}
-                  className="px-8 py-3 bg-neutral-900 border border-red-600/30 rounded-full text-white font-bold tracking-widest uppercase hover:bg-red-600 hover:border-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-               >
-                  {isLoading ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                      Loading...
-                    </>
-                  ) : (
-                    <>
-                      Load More Items
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </>
-                  )}
-               </button>
+        {isLoading && (
+           <div className="flex justify-center py-8">
+              <span className="w-10 h-10 border-4 border-red-600/30 border-t-red-600 rounded-full animate-spin"></span>
            </div>
+        )}
+        
+        {!hasMore && items.length > 0 && (
+            <div className="text-center text-neutral-500 py-8 font-mono text-sm uppercase tracking-widest">
+                End of Auction List
+            </div>
         )}
       </main>
 
