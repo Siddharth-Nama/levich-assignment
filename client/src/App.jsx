@@ -15,10 +15,10 @@ function App() {
       try {
         setIsLoading(true);
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/items?page=${page}&limit=12`);
+        const response = await fetch(`${apiUrl}/items?page=${page}&limit=10`);
         const data = await response.json();
         
-        if (data.length < 12) {
+        if (data.length < 10) {
             setHasMore(false);
         }
 

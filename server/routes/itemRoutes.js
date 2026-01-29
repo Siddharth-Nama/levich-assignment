@@ -5,11 +5,13 @@ const Item = require('../models/Item');
 router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
+    console.log(`Fetching items - Page: ${page}, Limit: ${limit}, Skip: ${skip}`);
+
     const items = await Item.find()
-      .sort({ createdAt: -1 })
+      .sort({ endTime: 1, _id: 1 }) // Stable sort: items ending soonest first
       .skip(skip)
       .limit(limit);
 
