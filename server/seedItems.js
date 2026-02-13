@@ -5,7 +5,7 @@ const connectDB = require('./config/db');
 
 dotenv.config();
 
-const MAX_ITEMS = 100;
+const MAX_ITEMS = 500;
 
 const adjectives = ['Vintage', 'Rare', 'Antique', 'Collectible', 'Signed', 'Limited Edition', 'Retro', 'Modern', 'Futuristic', 'Legendary', 'Golden', 'Silver', 'Diamond', 'Broken', 'Haunted'];
 const nouns = ['Camera', 'Watch', 'Coin', 'Poster', 'Guitar', 'Sneakers', 'Console', 'Laptop', 'Painting', 'Sculpture', 'Bike', 'Car', 'Drone', 'Smartphone', 'Chair', 'Table', 'Lamp', 'Keyboard', 'Monitor', 'Headphones'];
@@ -18,7 +18,9 @@ const generateItems = () => {
     
     const startingPrice = Math.floor(Math.random() * 990) + 10;
     
-    const duration = Math.floor(Math.random() * (24 * 60 - 2) + 2) * 60 * 1000;
+    const minDuration = 30 * 24 * 60 * 60 * 1000; // 1 month
+    const maxDuration = 6 * 30 * 24 * 60 * 60 * 1000; // 6 months
+    const duration = Math.floor(Math.random() * (maxDuration - minDuration) + minDuration);
     const endTime = new Date(Date.now() + duration);
 
     items.push({
